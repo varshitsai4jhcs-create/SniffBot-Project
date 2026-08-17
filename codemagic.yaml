@@ -7,38 +7,28 @@ workflows:
       xcode: latest
       cocoapods: default
     scripts:
-      - name: Install Tuist via Mise
+      - name: Clean and Build App Binary
         script: |
           #!/bin/bash
-          echo "Installing Mise (the recommended Tuist manager)..."
-          curl https://jdx.dev | sh
-          export PATH="$HOME/.local/share/mise/bin:$PATH"
-          
-          echo "Installing Tuist..."
-          mise use -g tuist@latest
-          
-          echo "Verifying Tuist Installation..."
-          tuist version
-      - name: Generate Workspace
-        script: |
-          #!/bin/bash
-          export PATH="$HOME/.local/share/mise/bin:$PATH"
-          echo "Generating Workspace via Tuist..."
-          tuist install
-          tuist generate
-      - name: Install Dependencies
-        script: |
-          #!/bin/bash
-          npm install
-      - name: Build Debug IPA
-        script: |
-          #!/bin/bash
-          xcodebuild -workspace SniffBot.xcworkspace \
+          echo "Compiling native project files..."
+          xcodebuild -project SniffBot.xcodeproj \
                      -scheme SniffBot \
                      -configuration Debug \
                      -sdk iphoneos \
+                     -derivedDataPath build_output \
                      CODE_SIGNING_ALLOWED=NO \
                      CODE_SIGNING_REQUIRED=NO \
                      clean build
+      - name: Package App Into IPA Archive
+        script: |
+          #!/bin/bash
+          echo "Creating Payload folder structure..."
+          mkdir -p Payload
+          
+          echo "Copying compiled app package..."
+          cp -R build_output/Build/Products/Debug-iphoneos/SniffBot.app Payload/
+          
+          echo "Zipping app into final IPA format..."
+          zip -r SniffBot.ipa Payload
     artifacts:
-      - build/ios/iphoneos/*.app
+      - "*.ipa"
