@@ -7,13 +7,20 @@ workflows:
       xcode: latest
       cocoapods: default
     scripts:
-      - name: Install Tuist and Generate Workspace
+      - name: Install Tuist via Homebrew
         script: |
           #!/bin/bash
-          echo "Installing Tuist..."
-          curl -Ls https://tuist.io | bash
-          export PATH="$HOME/.tuist/bin:$PATH"
-          echo "Generating Workspace..."
+          echo "Updating Homebrew and Installing Tuist..."
+          brew tap tuist/tuist
+          brew install --formula tuist
+          
+          echo "Verifying Tuist Installation..."
+          tuist version
+      - name: Generate Workspace
+        script: |
+          #!/bin/bash
+          echo "Generating Workspace via Tuist..."
+          tuist install
           tuist generate
       - name: Install Dependencies
         script: |
