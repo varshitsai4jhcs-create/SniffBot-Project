@@ -9,13 +9,19 @@ workflows:
     scripts:
       - name: Install Tuist and Generate Workspace
         script: |
+          #!/bin/bash
+          echo "Installing Tuist..."
           curl -Ls https://tuist.io | bash
+          export PATH="$HOME/.tuist/bin:$PATH"
+          echo "Generating Workspace..."
           tuist generate
       - name: Install Dependencies
         script: |
+          #!/bin/bash
           npm install
       - name: Build Debug IPA
         script: |
+          #!/bin/bash
           xcodebuild -workspace SniffBot.xcworkspace \
                      -scheme SniffBot \
                      -configuration Debug \
