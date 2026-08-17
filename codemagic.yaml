@@ -1,0 +1,27 @@
+workflows:
+  ios-debug-build:
+    name: iOS Debug IPA Build
+    max_build_duration: 30
+    instance_type: mac_mini_m1
+    environment:
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Install Tuist and Generate Workspace
+        script: |
+          curl -Ls https://tuist.io | bash
+          tuist generate
+      - name: Install Dependencies
+        script: |
+          npm install
+      - name: Build Debug IPA
+        script: |
+          xcodebuild -workspace SniffBot.xcworkspace \
+                     -scheme SniffBot \
+                     -configuration Debug \
+                     -sdk iphoneos \
+                     CODE_SIGNING_ALLOWED=NO \
+                     CODE_SIGNING_REQUIRED=NO \
+                     clean build
+    artifacts:
+      - build/ios/iphoneos/*.app
